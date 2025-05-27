@@ -1,14 +1,17 @@
-   namespace Scheduling.Models
+using System.ComponentModel.DataAnnotations;
+
+namespace Scheduling.Models
    {
        public class Agendamento
        {
+           [Key]
            public int Id { get; set; }
            public DateTime Data { get; set; }
            public DateTime Horario { get; set; }
 
            // Relacionamentos
            public int ClienteId { get; set; }
-           public Cliente Cliente { get; set; }
+           public ClienteModel Cliente { get; set; }
 
            public int BarbeiroId { get; set; }
            public Barbeiro Barbeiro { get; set; }
