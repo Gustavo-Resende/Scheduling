@@ -10,5 +10,6 @@ namespace Scheduling.Service.BarbeiroService
         Task<ServiceResponse<List<Barbeiro>>> UpdateBarbeiro(Barbeiro editadoBarbeiro);
         Task<ServiceResponse<List<Barbeiro>>> DeleteBarbeiro(int id);
         Task<ServiceResponse<List<Barbeiro>>> InativaBarbeiro(int id);
+        Task<ServiceResponse<List<Barbeiro>>> AtivaBarbeiro(int id);
     }
 }

@@ -26,5 +26,35 @@ namespace Scheduling.Controllers
         {
             return Ok(await _barbeiroInterface.CreateBarbeiro(novoBarbeiro));
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> DeleteBarbeiro(int id)
+        {
+            return Ok(await _barbeiroInterface.DeleteBarbeiro(id));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> GetBarbeirosById(int id)
+        {
+            return Ok(await _barbeiroInterface.GetBarbeirosById(id));
+        }
+
+        [HttpPut("Inativa/{id}")]
+        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> InativaBarbeiro(int id)
+        {
+            return Ok(await _barbeiroInterface.InativaBarbeiro(id));
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> UpdateBarbeiro(Barbeiro editadoBarbeiro)
+        {
+            return Ok(await _barbeiroInterface.UpdateBarbeiro(editadoBarbeiro));
+        }
+
+        [HttpPut("Ativa/{id}")]
+        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> AtivaBarbeiro(int id)
+        {
+            return Ok(await _barbeiroInterface.AtivaBarbeiro(id));
+        }
     }
 }
