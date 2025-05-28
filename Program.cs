@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Scheduling.Data;
 using Scheduling.Service.BarbeiroService;
+using Scheduling.Service.ClienteService;
+using Scheduling.Service.ServicoService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IBarbeiroInterface, BarbeiroService>();
+builder.Services.AddScoped<IClienteInterface, ClienteService>();
+builder.Services.AddScoped<IServicoInterface, ServicoService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
