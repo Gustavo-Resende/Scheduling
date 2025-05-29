@@ -9,5 +9,9 @@ namespace Scheduling.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Preco { get; set; }
+
+        // Relacionamento com Empresa
+        public int EmpresaId { get; set; }
+        public Empresa Empresa { get; set; }
     }
 }

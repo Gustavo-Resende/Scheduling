@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Scheduling.Data;
 
@@ -11,9 +12,11 @@ using Scheduling.Data;
 namespace Scheduling.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250529153528_EntityEmpresa")]
+    partial class EntityEmpresa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,7 +178,7 @@ namespace Scheduling.Migrations
                     b.HasOne("Scheduling.Models.Empresa", "Empresa")
                         .WithMany("Agendamentos")
                         .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Scheduling.Models.Servico", "Servico")
@@ -198,7 +201,7 @@ namespace Scheduling.Migrations
                     b.HasOne("Scheduling.Models.Empresa", "Empresa")
                         .WithMany("Barbeiros")
                         .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Empresa");
@@ -209,7 +212,7 @@ namespace Scheduling.Migrations
                     b.HasOne("Scheduling.Models.Empresa", "Empresa")
                         .WithMany("Clientes")
                         .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Empresa");
@@ -220,7 +223,7 @@ namespace Scheduling.Migrations
                     b.HasOne("Scheduling.Models.Empresa", "Empresa")
                         .WithMany("Servicos")
                         .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Empresa");
