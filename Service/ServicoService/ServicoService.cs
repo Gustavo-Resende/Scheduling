@@ -1,4 +1,7 @@
-﻿using Scheduling.Data;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Scheduling.Data;
+using Scheduling.DTOs.Servico;
 using Scheduling.Models;
 
 namespace Scheduling.Service.ServicoService
@@ -6,129 +9,130 @@ namespace Scheduling.Service.ServicoService
     public class ServicoService : IServicoInterface
     {
         private readonly AppDbContext _context;
-        public ServicoService(AppDbContext context)
+        private readonly IMapper _mapper;
+
+        public ServicoService(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<List<Servico>>> CreateServico(Servico novoServico)
+        public async Task<ServiceResponse<ServicoReadDto>> CreateServico(ServicoCreateDto novoServico)
         {
-            ServiceResponse<List<Servico>> serviceResponse = new ServiceResponse<List<Servico>>();
+            var response = new ServiceResponse<ServicoReadDto>();
             try
             {
-                _context.Servicos.Add(novoServico);
+                var servico = _mapper.Map<Servico>(novoServico);
+                _context.Servicos.Add(servico);
                 await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Servicos.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Serviço criado com sucesso.";
+
+                response.Dados = _mapper.Map<ServicoReadDto>(servico);
+                response.Sucesso = true;
+                response.Mensagem = "Serviço criado com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao criar serviço: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao criar serviço: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Servico>>> DeleteServico(int id)
+        public async Task<ServiceResponse<bool>> DeleteServico(int id)
         {
-            ServiceResponse<List<Servico>> serviceResponse = new ServiceResponse<List<Servico>>();
+            var response = new ServiceResponse<bool>();
             try
             {
-                var servico = _context.Servicos.FirstOrDefault(s => s.Id == id);
-                if (servico != null)
+                var servico = await _context.Servicos.FindAsync(id);
+                if (servico == null)
                 {
-                    _context.Servicos.Remove(servico);
-                    await _context.SaveChangesAsync();
-                    serviceResponse.Dados = _context.Servicos.ToList();
-                    serviceResponse.Sucesso = true;
-                    serviceResponse.Mensagem = "Serviço deletado com sucesso.";
+                    response.Sucesso = false;
+                    response.Mensagem = "Serviço não encontrado.";
+                    response.Dados = false;
+                    return response;
                 }
-                else
-                {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Serviço não encontrado.";
-                }
+                _context.Servicos.Remove(servico);
+                await _context.SaveChangesAsync();
+                response.Dados = true;
+                response.Sucesso = true;
+                response.Mensagem = "Serviço deletado com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao deletar serviço: {ex.Message}";
+                response.Sucesso = false;
+                response.Dados = false;
+                response.Mensagem = $"Erro ao deletar serviço: {ex.Message}";
             }
-            return serviceResponse;
-
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Servico>>> GetServicoById(int id)
+        public async Task<ServiceResponse<List<ServicoReadDto>>> GetServicos()
         {
-            ServiceResponse<List<Servico>> serviceResponse = new ServiceResponse<List<Servico>>();
+            var response = new ServiceResponse<List<ServicoReadDto>>();
             try
             {
-                var servico = _context.Servicos.FirstOrDefault(s => s.Id == id);
-                if (servico != null)
-                {
-                    serviceResponse.Dados = new List<Servico> { servico };
-                    serviceResponse.Sucesso = true;
-                    serviceResponse.Mensagem = "Serviço obtido com sucesso.";
-                }
-                else
-                {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Serviço não encontrado.";
-                }
+                var servicos = await _context.Servicos.ToListAsync();
+                response.Dados = _mapper.Map<List<ServicoReadDto>>(servicos);
+                response.Sucesso = true;
+                response.Mensagem = "Serviços obtidos com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao obter serviço: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao obter serviços: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Servico>>> GetServicos()
+        public async Task<ServiceResponse<ServicoReadDto>> GetServicoById(int id)
         {
-            ServiceResponse<List<Servico>> serviceResponse = new ServiceResponse<List<Servico>>();
+            var response = new ServiceResponse<ServicoReadDto>();
             try
             {
-                serviceResponse.Dados = _context.Servicos.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Serviços obtidos com sucesso.";
+                var servico = await _context.Servicos.FindAsync(id);
+                if (servico == null)
+                {
+                    response.Sucesso = false;
+                    response.Mensagem = "Serviço não encontrado.";
+                    return response;
+                }
+                response.Dados = _mapper.Map<ServicoReadDto>(servico);
+                response.Sucesso = true;
+                response.Mensagem = "Serviço obtido com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao obter serviços: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao obter serviço: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Servico>>> UpdateServico(Servico editadoServico)
+        public async Task<ServiceResponse<ServicoReadDto>> UpdateServico(ServicoUpdateDto editadoServico)
         {
-            ServiceResponse<List<Servico>> serviceResponse = new ServiceResponse<List<Servico>>();
+            var response = new ServiceResponse<ServicoReadDto>();
             try
             {
-                var servico = _context.Servicos.FirstOrDefault(s => s.Id == editadoServico.Id);
-                if (servico != null)
+                var servico = await _context.Servicos.FindAsync(editadoServico.Id);
+                if (servico == null)
                 {
-                    servico.Tipo = editadoServico.Tipo;
-                    servico.Preco = editadoServico.Preco;
-                    await _context.SaveChangesAsync();
-                    serviceResponse.Dados = _context.Servicos.ToList();
-                    serviceResponse.Sucesso = true;
-                    serviceResponse.Mensagem = "Serviço atualizado com sucesso.";
+                    response.Sucesso = false;
+                    response.Mensagem = "Serviço não encontrado.";
+                    return response;
                 }
-                else
-                {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Serviço não encontrado.";
-                }
+                _mapper.Map(editadoServico, servico);
+                await _context.SaveChangesAsync();
+
+                response.Dados = _mapper.Map<ServicoReadDto>(servico);
+                response.Sucesso = true;
+                response.Mensagem = "Serviço atualizado com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao atualizar serviço: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao atualizar serviço: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
     }
 }

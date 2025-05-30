@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Scheduling.DTOs.Cliente;
 using Scheduling.Models;
-using Scheduling.Service.BarbeiroService;
 using Scheduling.Service.ClienteService;
-using System.Threading.Tasks;
 
 namespace Scheduling.Controllers
 {
@@ -18,33 +16,38 @@ namespace Scheduling.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse<List<ClienteModel>>>> GetClientes()
+        public async Task<ActionResult<ServiceResponse<List<ClienteReadDto>>>> GetClientes()
         {
-            return Ok(await _clienteInterface.GetClientes());
+            var result = await _clienteInterface.GetClientes();
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<ClienteModel>>>> CreateCliente(ClienteModel novoCliente)
+        public async Task<ActionResult<ServiceResponse<ClienteReadDto>>> CreateCliente([FromBody] ClienteCreateDto novoCliente)
         {
-            return Ok(await _clienteInterface.CreateCliente(novoCliente));
+            var result = await _clienteInterface.CreateCliente(novoCliente);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ServiceResponse<List<ClienteModel>>>> DeleteCliente(int id)
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteCliente(int id)
         {
-            return Ok(await _clienteInterface.DeleteCliente(id));
+            var result = await _clienteInterface.DeleteCliente(id);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<List<ClienteModel>>>> GetClientesById(int id)
+        public async Task<ActionResult<ServiceResponse<ClienteReadDto>>> GetClienteById(int id)
         {
-            return Ok(await _clienteInterface.GetClientesById(id));
+            var result = await _clienteInterface.GetClienteById(id);
+            return Ok(result);
         }
 
         [HttpPut]
-        public async Task<ActionResult<ServiceResponse<List<ClienteModel>>>> UpdateCliente(ClienteModel editadoCliente)
+        public async Task<ActionResult<ServiceResponse<ClienteReadDto>>> UpdateCliente([FromBody] ClienteUpdateDto editadoCliente)
         {
-            return Ok(await _clienteInterface.UpdateCliente(editadoCliente));
+            var result = await _clienteInterface.UpdateCliente(editadoCliente);
+            return Ok(result);
         }
     }
 }

@@ -1,138 +1,138 @@
-﻿using Scheduling.Data;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Scheduling.Data;
+using Scheduling.DTOs.Cliente;
 using Scheduling.Models;
 
 namespace Scheduling.Service.ClienteService
 {
     public class ClienteService : IClienteInterface
     {
-
         private readonly AppDbContext _context;
-        public ClienteService(AppDbContext context)
+        private readonly IMapper _mapper;
+
+        public ClienteService(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<List<ClienteModel>>> CreateCliente(ClienteModel novoCliente)
+        public async Task<ServiceResponse<ClienteReadDto>> CreateCliente(ClienteCreateDto novoCliente)
         {
-            ServiceResponse<List<ClienteModel>> serviceResponse = new ServiceResponse<List<ClienteModel>>();
+            var response = new ServiceResponse<ClienteReadDto>();
             try
             {
-                if (novoCliente == null)
-                {
-                    serviceResponse.Dados = null;
-                    serviceResponse.Mensagem = "Cliente não pode ser nulo!";
-                    serviceResponse.Sucesso = false;
-                    return serviceResponse;
-                }
-                _context.Clientes.Add(novoCliente);
+                var cliente = _mapper.Map<ClienteModel>(novoCliente);
+                _context.Clientes.Add(cliente);
                 await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Clientes.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Cliente criado com sucesso.";
+
+                response.Dados = _mapper.Map<ClienteReadDto>(cliente);
+                response.Sucesso = true;
+                response.Mensagem = "Cliente criado com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao criar cliente: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao criar cliente: {ex.Message}";
             }
-            return serviceResponse;
-
+            return response;
         }
 
-        public async Task<ServiceResponse<List<ClienteModel>>> DeleteCliente(int id)
+        public async Task<ServiceResponse<bool>> DeleteCliente(int id)
         {
-            ServiceResponse<List<ClienteModel>> serviceResponse = new ServiceResponse<List<ClienteModel>>();
+            var response = new ServiceResponse<bool>();
             try
             {
-                var cliente = _context.Clientes.FirstOrDefault(c => c.Id == id);
+                var cliente = await _context.Clientes.FindAsync(id);
                 if (cliente == null)
                 {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Cliente não encontrado.";
-                    return serviceResponse;
+                    response.Sucesso = false;
+                    response.Mensagem = "Cliente não encontrado.";
+                    response.Dados = false;
+                    return response;
                 }
                 _context.Clientes.Remove(cliente);
                 await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Clientes.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Cliente excluído com sucesso.";
+                response.Dados = true;
+                response.Sucesso = true;
+                response.Mensagem = "Cliente excluído com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao excluir cliente: {ex.Message}";
+                response.Sucesso = false;
+                response.Dados = false;
+                response.Mensagem = $"Erro ao excluir cliente: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<ClienteModel>>> GetClientes()
+        public async Task<ServiceResponse<List<ClienteReadDto>>> GetClientes()
         {
-            ServiceResponse<List<ClienteModel>> serviceResponse = new ServiceResponse<List<ClienteModel>>();
+            var response = new ServiceResponse<List<ClienteReadDto>>();
             try
             {
-                serviceResponse.Dados = _context.Clientes.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Clientes obtidos com sucesso.";
+                var clientes = await _context.Clientes.ToListAsync();
+                response.Dados = _mapper.Map<List<ClienteReadDto>>(clientes);
+                response.Sucesso = true;
+                response.Mensagem = "Clientes obtidos com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao obter clientes: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao obter clientes: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<ClienteModel>>> GetClientesById(int id)
+        public async Task<ServiceResponse<ClienteReadDto>> GetClienteById(int id)
         {
-            ServiceResponse<List<ClienteModel>> serviceResponse = new ServiceResponse<List<ClienteModel>>();
+            var response = new ServiceResponse<ClienteReadDto>();
             try
             {
-                var cliente = _context.Clientes.FirstOrDefault(c => c.Id == id);
+                var cliente = await _context.Clientes.FindAsync(id);
                 if (cliente == null)
                 {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Cliente não encontrado.";
-                    return serviceResponse;
+                    response.Sucesso = false;
+                    response.Mensagem = "Cliente não encontrado.";
+                    return response;
                 }
-                serviceResponse.Dados = new List<ClienteModel> { cliente };
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Cliente obtido com sucesso.";
+                response.Dados = _mapper.Map<ClienteReadDto>(cliente);
+                response.Sucesso = true;
+                response.Mensagem = "Cliente obtido com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao obter cliente: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao obter cliente: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<ClienteModel>>> UpdateCliente(ClienteModel editadoCliente)
+        public async Task<ServiceResponse<ClienteReadDto>> UpdateCliente(ClienteUpdateDto editadoCliente)
         {
-            ServiceResponse<List<ClienteModel>> serviceResponse = new ServiceResponse<List<ClienteModel>>();
+            var response = new ServiceResponse<ClienteReadDto>();
             try
             {
-                var cliente = _context.Clientes.FirstOrDefault(c => c.Id == editadoCliente.Id);
+                var cliente = await _context.Clientes.FindAsync(editadoCliente.Id);
                 if (cliente == null)
                 {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Cliente não encontrado.";
-                    return serviceResponse;
+                    response.Sucesso = false;
+                    response.Mensagem = "Cliente não encontrado.";
+                    return response;
                 }
-                cliente.Nome = editadoCliente.Nome;
-                // FAZER LÓGICA TELEFONE 00 00000-0000
-                cliente.Telefone = editadoCliente.Telefone;
-                _context.Clientes.Update(cliente);
+                _mapper.Map(editadoCliente, cliente);
                 await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Clientes.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Cliente atualizado com sucesso.";
+
+                response.Dados = _mapper.Map<ClienteReadDto>(cliente);
+                response.Sucesso = true;
+                response.Mensagem = "Cliente atualizado com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao atualizar cliente: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao atualizar cliente: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
     }
 }

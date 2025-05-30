@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Scheduling.DTOs.Barbeiro;
 using Scheduling.Models;
 using Scheduling.Service.BarbeiroService;
 
@@ -16,45 +16,52 @@ namespace Scheduling.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> GetBarbeiros()
+        public async Task<ActionResult<ServiceResponse<List<BarbeiroReadDto>>>> GetBarbeiros()
         {
-            return Ok(await _barbeiroInterface.GetBarbeiros());
+            var result = await _barbeiroInterface.GetBarbeiros();
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> CreateBarbeiro(Barbeiro novoBarbeiro)
+        public async Task<ActionResult<ServiceResponse<BarbeiroReadDto>>> CreateBarbeiro([FromBody] BarbeiroCreateDto novoBarbeiro)
         {
-            return Ok(await _barbeiroInterface.CreateBarbeiro(novoBarbeiro));
+            var result = await _barbeiroInterface.CreateBarbeiro(novoBarbeiro);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> DeleteBarbeiro(int id)
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteBarbeiro(int id)
         {
-            return Ok(await _barbeiroInterface.DeleteBarbeiro(id));
+            var result = await _barbeiroInterface.DeleteBarbeiro(id);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> GetBarbeirosById(int id)
+        public async Task<ActionResult<ServiceResponse<BarbeiroReadDto>>> GetBarbeiroById(int id)
         {
-            return Ok(await _barbeiroInterface.GetBarbeirosById(id));
-        }
-
-        [HttpPut("Inativa/{id}")]
-        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> InativaBarbeiro(int id)
-        {
-            return Ok(await _barbeiroInterface.InativaBarbeiro(id));
+            var result = await _barbeiroInterface.GetBarbeiroById(id);
+            return Ok(result);
         }
 
         [HttpPut]
-        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> UpdateBarbeiro(Barbeiro editadoBarbeiro)
+        public async Task<ActionResult<ServiceResponse<BarbeiroReadDto>>> UpdateBarbeiro([FromBody] BarbeiroUpdateDto editadoBarbeiro)
         {
-            return Ok(await _barbeiroInterface.UpdateBarbeiro(editadoBarbeiro));
+            var result = await _barbeiroInterface.UpdateBarbeiro(editadoBarbeiro);
+            return Ok(result);
+        }
+
+        [HttpPut("Inativa/{id}")]
+        public async Task<ActionResult<ServiceResponse<BarbeiroReadDto>>> InativaBarbeiro(int id)
+        {
+            var result = await _barbeiroInterface.InativaBarbeiro(id);
+            return Ok(result);
         }
 
         [HttpPut("Ativa/{id}")]
-        public async Task<ActionResult<ServiceResponse<List<Barbeiro>>>> AtivaBarbeiro(int id)
+        public async Task<ActionResult<ServiceResponse<BarbeiroReadDto>>> AtivaBarbeiro(int id)
         {
-            return Ok(await _barbeiroInterface.AtivaBarbeiro(id));
+            var result = await _barbeiroInterface.AtivaBarbeiro(id);
+            return Ok(result);
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿using Scheduling.Data;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Scheduling.Data;
+using Scheduling.DTOs.Barbeiro;
 using Scheduling.Models;
 
 namespace Scheduling.Service.BarbeiroService
@@ -6,189 +9,184 @@ namespace Scheduling.Service.BarbeiroService
     public class BarbeiroService : IBarbeiroInterface
     {
         private readonly AppDbContext _context;
-        public BarbeiroService(AppDbContext context)
+        private readonly IMapper _mapper;
+
+        public BarbeiroService(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<List<Barbeiro>>> CreateBarbeiro(Barbeiro novoBarbeiro)
+        public async Task<ServiceResponse<BarbeiroReadDto>> CreateBarbeiro(BarbeiroCreateDto novoBarbeiro)
         {
-            ServiceResponse<List<Barbeiro>> serviceResponse = new ServiceResponse<List<Barbeiro>>();
+            var response = new ServiceResponse<BarbeiroReadDto>();
             try
             {
-                if (novoBarbeiro == null)
-                {
-                    serviceResponse.Dados = null;
-                    serviceResponse.Mensagem = "Barbeiro não pode ser nulo!";
-                    serviceResponse.Sucesso = false;
-
-                    return serviceResponse;
-                }
-
-                _context.Barbeiros.Add(novoBarbeiro);
+                var barbeiro = _mapper.Map<Barbeiro>(novoBarbeiro);
+                _context.Barbeiros.Add(barbeiro);
                 await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Barbeiros.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Barbeiro criado com sucesso.";
+
+                response.Dados = _mapper.Map<BarbeiroReadDto>(barbeiro);
+                response.Sucesso = true;
+                response.Mensagem = "Barbeiro criado com sucesso!";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao criar barbeiro: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao criar barbeiro: {ex.Message}";
             }
-
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Barbeiro>>> DeleteBarbeiro(int id)
+        public async Task<ServiceResponse<bool>> DeleteBarbeiro(int id)
         {
-            ServiceResponse<List<Barbeiro>> serviceResponse = new ServiceResponse<List<Barbeiro>>();
+            var response = new ServiceResponse<bool>();
             try
             {
-                var barbeiro = _context.Barbeiros.FirstOrDefault(b => b.Id == id);
+                var barbeiro = await _context.Barbeiros.FindAsync(id);
                 if (barbeiro == null)
                 {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Barbeiro não encontrado.";
-                    return serviceResponse;
+                    response.Sucesso = false;
+                    response.Mensagem = "Barbeiro não encontrado.";
+                    response.Dados = false;
+                    return response;
                 }
                 _context.Barbeiros.Remove(barbeiro);
                 await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Barbeiros.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Barbeiro excluído com sucesso.";
+                response.Dados = true;
+                response.Sucesso = true;
+                response.Mensagem = "Barbeiro excluído com sucesso!";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao excluir barbeiro: {ex.Message}";
+                response.Sucesso = false;
+                response.Dados = false;
+                response.Mensagem = $"Erro ao excluir barbeiro: {ex.Message}";
             }
-
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Barbeiro>>> GetBarbeiros()
+        public async Task<ServiceResponse<List<BarbeiroReadDto>>> GetBarbeiros()
         {
-            ServiceResponse<List<Barbeiro>> serviceResponse = new ServiceResponse<List<Barbeiro>>();
-
+            var response = new ServiceResponse<List<BarbeiroReadDto>>();
             try
             {
-                serviceResponse.Dados = _context.Barbeiros.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Lista de barbeiros obtida com sucesso.";
+                var barbeiros = await _context.Barbeiros.ToListAsync();
+                response.Dados = _mapper.Map<List<BarbeiroReadDto>>(barbeiros);
+                response.Sucesso = true;
+                response.Mensagem = "Barbeiros recuperados com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao obter barbeiros: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao recuperar barbeiros: {ex.Message}";
             }
-
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Barbeiro>>> GetBarbeirosById(int id)
+        public async Task<ServiceResponse<BarbeiroReadDto>> GetBarbeiroById(int id)
         {
-            ServiceResponse<List<Barbeiro>> serviceResponse = new ServiceResponse<List<Barbeiro>>();
-
+            var response = new ServiceResponse<BarbeiroReadDto>();
             try
             {
-                var barbeiro = _context.Barbeiros.FirstOrDefault(b => b.Id == id);
+                var barbeiro = await _context.Barbeiros.FindAsync(id);
                 if (barbeiro == null)
                 {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Barbeiro não encontrado.";
-                    return serviceResponse;
+                    response.Sucesso = false;
+                    response.Mensagem = "Barbeiro não encontrado.";
+                    return response;
                 }
-                serviceResponse.Dados = new List<Barbeiro> { barbeiro };
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Barbeiro encontrado com sucesso.";
+                response.Dados = _mapper.Map<BarbeiroReadDto>(barbeiro);
+                response.Sucesso = true;
+                response.Mensagem = "Barbeiro recuperado com sucesso.";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao obter barbeiro: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao recuperar barbeiro: {ex.Message}";
             }
-
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Barbeiro>>> InativaBarbeiro(int id)
+        public async Task<ServiceResponse<BarbeiroReadDto>> UpdateBarbeiro(BarbeiroUpdateDto editadoBarbeiro)
         {
-            ServiceResponse<List<Barbeiro>> serviceResponse = new ServiceResponse<List<Barbeiro>>();
-
+            var response = new ServiceResponse<BarbeiroReadDto>();
             try
             {
-                var barbeiro = _context.Barbeiros.FirstOrDefault(b => b.Id == id);
+                var barbeiro = await _context.Barbeiros.FindAsync(editadoBarbeiro.Id);
                 if (barbeiro == null)
                 {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Barbeiro não encontrado.";
-                    return serviceResponse;
+                    response.Sucesso = false;
+                    response.Mensagem = "Barbeiro não encontrado.";
+                    return response;
+                }
+                _mapper.Map(editadoBarbeiro, barbeiro);
+                await _context.SaveChangesAsync();
+
+                response.Dados = _mapper.Map<BarbeiroReadDto>(barbeiro);
+                response.Sucesso = true;
+                response.Mensagem = "Barbeiro atualizado com sucesso!";
+            }
+            catch (Exception ex)
+            {
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao atualizar barbeiro: {ex.Message}";
+            }
+            return response;
+        }
+
+        public async Task<ServiceResponse<BarbeiroReadDto>> InativaBarbeiro(int id)
+        {
+            var response = new ServiceResponse<BarbeiroReadDto>();
+            try
+            {
+                var barbeiro = await _context.Barbeiros.FindAsync(id);
+                if (barbeiro == null)
+                {
+                    response.Sucesso = false;
+                    response.Mensagem = "Barbeiro não encontrado.";
+                    return response;
                 }
                 barbeiro.Status = false;
                 await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Barbeiros.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Barbeiro inativado com sucesso.";
+
+                response.Dados = _mapper.Map<BarbeiroReadDto>(barbeiro);
+                response.Sucesso = true;
+                response.Mensagem = "Barbeiro inativado com sucesso!";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao inativar barbeiro: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao inativar barbeiro: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
 
-        public async Task<ServiceResponse<List<Barbeiro>>> UpdateBarbeiro(Barbeiro editadoBarbeiro)
+        public async Task<ServiceResponse<BarbeiroReadDto>> AtivaBarbeiro(int id)
         {
-            ServiceResponse<List<Barbeiro>> serviceResponse = new ServiceResponse<List<Barbeiro>>();
+            var response = new ServiceResponse<BarbeiroReadDto>();
             try
             {
-                var barbeiro = _context.Barbeiros.FirstOrDefault(b => b.Id == editadoBarbeiro.Id);
+                var barbeiro = await _context.Barbeiros.FindAsync(id);
                 if (barbeiro == null)
                 {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Barbeiro não encontrado.";
-                    return serviceResponse;
-                }
-                barbeiro.Nome = editadoBarbeiro.Nome;
-                barbeiro.Especialidade = editadoBarbeiro.Especialidade;
-                await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Barbeiros.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Barbeiro atualizado com sucesso.";
-            }
-            catch (Exception ex)
-            {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao atualizar barbeiro: {ex.Message}";
-            }
-            return serviceResponse;
-        }
-        public async Task<ServiceResponse<List<Barbeiro>>> AtivaBarbeiro(int id)
-        {
-            ServiceResponse<List<Barbeiro>> serviceResponse = new ServiceResponse<List<Barbeiro>>();
-            try
-            {
-                var barbeiro = _context.Barbeiros.FirstOrDefault(b => b.Id == id);
-                if (barbeiro == null)
-                {
-                    serviceResponse.Sucesso = false;
-                    serviceResponse.Mensagem = "Barbeiro não encontrado.";
-                    return serviceResponse;
+                    response.Sucesso = false;
+                    response.Mensagem = "Barbeiro não encontrado.";
+                    return response;
                 }
                 barbeiro.Status = true;
                 await _context.SaveChangesAsync();
-                serviceResponse.Dados = _context.Barbeiros.ToList();
-                serviceResponse.Sucesso = true;
-                serviceResponse.Mensagem = "Barbeiro ativado com sucesso.";
+
+                response.Dados = _mapper.Map<BarbeiroReadDto>(barbeiro);
+                response.Sucesso = true;
+                response.Mensagem = "Barbeiro ativado com sucesso!";
             }
             catch (Exception ex)
             {
-                serviceResponse.Sucesso = false;
-                serviceResponse.Mensagem = $"Erro ao ativar barbeiro: {ex.Message}";
+                response.Sucesso = false;
+                response.Mensagem = $"Erro ao ativar barbeiro: {ex.Message}";
             }
-            return serviceResponse;
+            return response;
         }
     }
 }

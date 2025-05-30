@@ -12,8 +12,8 @@ using Scheduling.Data;
 namespace Scheduling.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250529153528_EntityEmpresa")]
-    partial class EntityEmpresa
+    [Migration("20250530002044_Atualizacao")]
+    partial class Atualizacao
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -178,7 +178,7 @@ namespace Scheduling.Migrations
                     b.HasOne("Scheduling.Models.Empresa", "Empresa")
                         .WithMany("Agendamentos")
                         .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Scheduling.Models.Servico", "Servico")
@@ -201,7 +201,7 @@ namespace Scheduling.Migrations
                     b.HasOne("Scheduling.Models.Empresa", "Empresa")
                         .WithMany("Barbeiros")
                         .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Empresa");
@@ -212,7 +212,7 @@ namespace Scheduling.Migrations
                     b.HasOne("Scheduling.Models.Empresa", "Empresa")
                         .WithMany("Clientes")
                         .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Empresa");
@@ -223,7 +223,7 @@ namespace Scheduling.Migrations
                     b.HasOne("Scheduling.Models.Empresa", "Empresa")
                         .WithMany("Servicos")
                         .HasForeignKey("EmpresaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Empresa");

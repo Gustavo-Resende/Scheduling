@@ -12,8 +12,8 @@ using Scheduling.Data;
 namespace Scheduling.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250529155104_AjustemIGRATIONS")]
-    partial class AjustemIGRATIONS
+    [Migration("20250529220859_FirstMigrations")]
+    partial class FirstMigrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

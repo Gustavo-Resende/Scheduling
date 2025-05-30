@@ -5,7 +5,7 @@
 namespace Scheduling.Migrations
 {
     /// <inheritdoc />
-    public partial class AjusteDeleteRestrictEmpresa : Migration
+    public partial class Atualizacao : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

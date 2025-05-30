@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Scheduling.DTOs.Servico;
 using Scheduling.Models;
 using Scheduling.Service.ServicoService;
 
@@ -10,34 +10,45 @@ namespace Scheduling.Controllers
     public class ServicoController : ControllerBase
     {
         private readonly IServicoInterface _servicoService;
+
         public ServicoController(IServicoInterface servicoService)
         {
             _servicoService = servicoService;
         }
+
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse<List<Servico>>>> GetServicos()
+        public async Task<ActionResult<ServiceResponse<List<ServicoReadDto>>>> GetServicos()
         {
-            return Ok(await _servicoService.GetServicos());
+            var result = await _servicoService.GetServicos();
+            return Ok(result);
         }
+
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<Servico>>>> CreateServico(Servico novoServico)
+        public async Task<ActionResult<ServiceResponse<ServicoReadDto>>> CreateServico([FromBody] ServicoCreateDto novoServico)
         {
-            return Ok(await _servicoService.CreateServico(novoServico));
+            var result = await _servicoService.CreateServico(novoServico);
+            return Ok(result);
         }
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<List<Servico>>>> GetServicoById(int id)
+        public async Task<ActionResult<ServiceResponse<ServicoReadDto>>> GetServicoById(int id)
         {
-            return Ok(await _servicoService.GetServicoById(id));
+            var result = await _servicoService.GetServicoById(id);
+            return Ok(result);
         }
+
         [HttpPut]
-        public async Task<ActionResult<ServiceResponse<List<Servico>>>> UpdateServico(Servico editadoServico)
+        public async Task<ActionResult<ServiceResponse<ServicoReadDto>>> UpdateServico([FromBody] ServicoUpdateDto editadoServico)
         {
-            return Ok(await _servicoService.UpdateServico(editadoServico));
+            var result = await _servicoService.UpdateServico(editadoServico);
+            return Ok(result);
         }
+
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ServiceResponse<List<Servico>>>> DeleteServico(int id)
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteServico(int id)
         {
-            return Ok(await _servicoService.DeleteServico(id));
+            var result = await _servicoService.DeleteServico(id);
+            return Ok(result);
         }
     }
 }
