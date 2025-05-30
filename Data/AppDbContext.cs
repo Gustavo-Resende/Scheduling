@@ -14,6 +14,8 @@ namespace Scheduling.Data
         public DbSet<ClienteModel> Clientes { get; set; }
         public DbSet<Servico> Servicos { get; set; }
         public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<BarbeiroServico> BarbeiroServicos { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -41,6 +43,19 @@ namespace Scheduling.Data
                 .WithMany(e => e.Agendamentos)
                 .HasForeignKey(a => a.EmpresaId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BarbeiroServico>()
+                .HasKey(bs => new { bs.BarbeiroId, bs.ServicoId });
+
+            modelBuilder.Entity<BarbeiroServico>()
+                .HasOne(bs => bs.Barbeiro)
+                .WithMany(b => b.BarbeiroServicos)
+                .HasForeignKey(bs => bs.BarbeiroId);
+
+            modelBuilder.Entity<BarbeiroServico>()
+                .HasOne(bs => bs.Servico)
+                .WithMany(s => s.BarbeiroServicos)
+                .HasForeignKey(bs => bs.ServicoId);
         }
 
     }

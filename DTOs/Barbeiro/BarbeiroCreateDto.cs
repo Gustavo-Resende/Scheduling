@@ -6,5 +6,6 @@ namespace Scheduling.DTOs.Barbeiro
         public string Especialidade { get; set; }
         public bool Status { get; set; } = true;
         public int EmpresaId { get; set; }
+        public List<int> ServicoIds { get; set; } // IDs dos serviços que ele executa
     }
 }
