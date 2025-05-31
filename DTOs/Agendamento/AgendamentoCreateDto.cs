@@ -8,5 +8,6 @@ namespace Scheduling.DTOs.Agendamento
         public int BarbeiroId { get; set; }
         public int ServicoId { get; set; }
         public int EmpresaId { get; set; }
+        public string? Observacao { get; set; }
     }
 }

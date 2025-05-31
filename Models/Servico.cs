@@ -6,7 +6,7 @@ namespace Scheduling.Models
     {
         public int Id { get; set; }
         public string Descricao { get; set; } // Ex.: "Corte", "Barba"
-        public string Duracao { get; set; } // Ex.: "30 minutos", "1 hora"
+        public string? Duracao { get; set; } // Ex.: "30 minutos", "1 hora"
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Preco { get; set; }

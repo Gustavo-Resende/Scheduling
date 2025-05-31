@@ -4,8 +4,8 @@ namespace Scheduling.DTOs.Barbeiro
     {
         public int Id { get; set; }
         public string Nome { get; set; }
-        public string Especialidade { get; set; }
         public bool Status { get; set; }
         public int EmpresaId { get; set; }
+        public List<int> ServicoIds { get; set; }
     }
 }

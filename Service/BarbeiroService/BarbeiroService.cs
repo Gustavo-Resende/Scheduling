@@ -26,6 +26,22 @@ namespace Scheduling.Service.BarbeiroService
                 _context.Barbeiros.Add(barbeiro);
                 await _context.SaveChangesAsync();
 
+                // Após salvar o barbeiro:
+                foreach (var servicoId in novoBarbeiro.ServicoIds)
+                {
+                    // Valide se o serviço pertence à empresa do barbeiro
+                    var servico = await _context.Servicos
+                        .FirstOrDefaultAsync(s => s.Id == servicoId && s.EmpresaId == barbeiro.EmpresaId);
+                    if (servico != null)
+                    {
+                        _context.BarbeiroServicos.Add(new BarbeiroServico
+                        {
+                            BarbeiroId = barbeiro.Id,
+                            ServicoId = servicoId
+                        });
+                    }
+                }
+                await _context.SaveChangesAsync();
                 response.Dados = _mapper.Map<BarbeiroReadDto>(barbeiro);
                 response.Sucesso = true;
                 response.Mensagem = "Barbeiro criado com sucesso!";
@@ -71,7 +87,9 @@ namespace Scheduling.Service.BarbeiroService
             var response = new ServiceResponse<List<BarbeiroReadDto>>();
             try
             {
-                var barbeiros = await _context.Barbeiros.ToListAsync();
+                var barbeiros = await _context.Barbeiros
+                    .Include(b => b.BarbeiroServicos)
+                    .ToListAsync();
                 response.Dados = _mapper.Map<List<BarbeiroReadDto>>(barbeiros);
                 response.Sucesso = true;
                 response.Mensagem = "Barbeiros recuperados com sucesso.";
@@ -89,7 +107,9 @@ namespace Scheduling.Service.BarbeiroService
             var response = new ServiceResponse<BarbeiroReadDto>();
             try
             {
-                var barbeiro = await _context.Barbeiros.FindAsync(id);
+                var barbeiro = await _context.Barbeiros
+                    .Include(b => b.BarbeiroServicos)
+                    .FirstOrDefaultAsync(b => b.Id == id);
                 if (barbeiro == null)
                 {
                     response.Sucesso = false;
@@ -113,14 +133,40 @@ namespace Scheduling.Service.BarbeiroService
             var response = new ServiceResponse<BarbeiroReadDto>();
             try
             {
-                var barbeiro = await _context.Barbeiros.FindAsync(editadoBarbeiro.Id);
+                var barbeiro = await _context.Barbeiros
+                    .Include(b => b.BarbeiroServicos)
+                    .FirstOrDefaultAsync(b => b.Id == editadoBarbeiro.Id);
+
                 if (barbeiro == null)
                 {
                     response.Sucesso = false;
                     response.Mensagem = "Barbeiro não encontrado.";
                     return response;
                 }
+
+                // Atualiza os dados básicos
                 _mapper.Map(editadoBarbeiro, barbeiro);
+
+                // Remove todos os relacionamentos antigos
+                var antigos = _context.BarbeiroServicos.Where(bs => bs.BarbeiroId == barbeiro.Id);
+                _context.BarbeiroServicos.RemoveRange(antigos);
+
+                // Adiciona os novos relacionamentos
+                foreach (var servicoId in editadoBarbeiro.ServicoIds)
+                {
+                    // Valide se o serviço pertence à empresa do barbeiro
+                    var servico = await _context.Servicos
+                        .FirstOrDefaultAsync(s => s.Id == servicoId && s.EmpresaId == barbeiro.EmpresaId);
+                    if (servico != null)
+                    {
+                        _context.BarbeiroServicos.Add(new BarbeiroServico
+                        {
+                            BarbeiroId = barbeiro.Id,
+                            ServicoId = servicoId
+                        });
+                    }
+                }
+
                 await _context.SaveChangesAsync();
 
                 response.Dados = _mapper.Map<BarbeiroReadDto>(barbeiro);

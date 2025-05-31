@@ -8,7 +8,7 @@ namespace Scheduling.Models
         public int Id { get; set; }
         public DateTime Data { get; set; }
         public DateTime Horario { get; set; }
-        public string Observacao { get; set; } // Ex.: "Cliente pediu para não cortar muito curto"
+        public string? Observacao { get; set; } // Ex.: "Cliente pediu para não cortar muito curto"
         public bool Status { get; set; } = true; // Ex.: true para agendado, false para cancelado ou concluído
 
         // Relacionamentos
