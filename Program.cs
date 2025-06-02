@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Scheduling.Data;
 using Scheduling.Service.AgendamentoService;
@@ -5,6 +6,7 @@ using Scheduling.Service.BarbeiroService;
 using Scheduling.Service.ClienteService;
 using Scheduling.Service.EmpresaService;
 using Scheduling.Service.ServicoService;
+using Scheduling.Validators.Empresa;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,10 @@ builder.Services.AddScoped<IAgendamentoInterface, AgendamentoService>();
 builder.Services.AddScoped<IEmpresaInterface, EmpresaService>();
 
 builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssemblyContaining<EmpresaCreateDtoValidator>();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

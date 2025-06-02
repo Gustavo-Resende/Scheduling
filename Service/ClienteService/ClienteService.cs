@@ -17,18 +17,35 @@ namespace Scheduling.Service.ClienteService
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<ClienteReadDto>> CreateCliente(ClienteCreateDto novoCliente)
+        public async Task<ServiceResponse<ClienteReadDto>> CreateCliente(ClienteCreateDto dto)
         {
             var response = new ServiceResponse<ClienteReadDto>();
             try
             {
-                var cliente = _mapper.Map<ClienteModel>(novoCliente);
+                // Verifica se já existe CPF ou Email igual
+                bool cpfExiste = await _context.Clientes.AnyAsync(c => c.Cpf == dto.Cpf);
+                if (cpfExiste)
+                {
+                    response.Sucesso = false;
+                    response.Mensagem = "Já existe um cliente com este CPF.";
+                    return response;
+                }
+
+                bool emailExiste = await _context.Clientes.AnyAsync(c => c.Email == dto.Email);
+                if (emailExiste)
+                {
+                    response.Sucesso = false;
+                    response.Mensagem = "Já existe um cliente com este e-mail.";
+                    return response;
+                }
+
+                var cliente = _mapper.Map<ClienteModel>(dto);
                 _context.Clientes.Add(cliente);
                 await _context.SaveChangesAsync();
 
                 response.Dados = _mapper.Map<ClienteReadDto>(cliente);
                 response.Sucesso = true;
-                response.Mensagem = "Cliente criado com sucesso.";
+                response.Mensagem = "Cliente criado com sucesso!";
             }
             catch (Exception ex)
             {

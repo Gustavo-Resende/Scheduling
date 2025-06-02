@@ -22,14 +22,29 @@ namespace Scheduling.Service.BarbeiroService
             var response = new ServiceResponse<BarbeiroReadDto>();
             try
             {
+                // Verifica se já existe CPF ou Email igual
+                bool cpfExiste = await _context.Barbeiros.AnyAsync(b => b.Cpf == novoBarbeiro.Cpf);
+                if (cpfExiste)
+                {
+                    response.Sucesso = false;
+                    response.Mensagem = "Já existe um barbeiro com este CPF.";
+                    return response;
+                }
+
+                bool emailExiste = await _context.Barbeiros.AnyAsync(b => b.Email == novoBarbeiro.Email);
+                if (emailExiste)
+                {
+                    response.Sucesso = false;
+                    response.Mensagem = "Já existe um barbeiro com este e-mail.";
+                    return response;
+                }
+
                 var barbeiro = _mapper.Map<Barbeiro>(novoBarbeiro);
                 _context.Barbeiros.Add(barbeiro);
                 await _context.SaveChangesAsync();
 
-                // Após salvar o barbeiro:
                 foreach (var servicoId in novoBarbeiro.ServicoIds)
                 {
-                    // Valide se o serviço pertence à empresa do barbeiro
                     var servico = await _context.Servicos
                         .FirstOrDefaultAsync(s => s.Id == servicoId && s.EmpresaId == barbeiro.EmpresaId);
                     if (servico != null)
@@ -42,6 +57,7 @@ namespace Scheduling.Service.BarbeiroService
                     }
                 }
                 await _context.SaveChangesAsync();
+
                 response.Dados = _mapper.Map<BarbeiroReadDto>(barbeiro);
                 response.Sucesso = true;
                 response.Mensagem = "Barbeiro criado com sucesso!";

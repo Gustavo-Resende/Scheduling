@@ -22,6 +22,22 @@ namespace Scheduling.Service.EmpresaService
             var response = new ServiceResponse<EmpresaReadDto>();
             try
             {
+                bool cnpjExiste = await _context.Empresas.AnyAsync(e => e.Cnpj == dto.Cnpj);
+                if (cnpjExiste)
+                {
+                    response.Sucesso = false;
+                    response.Mensagem = "Já existe uma empresa com este CNPJ.";
+                    return response;
+                }
+
+                bool emailExiste = await _context.Empresas.AnyAsync(e => e.Email == dto.Email);
+                if (emailExiste)
+                {
+                    response.Sucesso = false;
+                    response.Mensagem = "Já existe uma empresa com este e-mail.";
+                    return response;
+                }
+
                 var empresa = _mapper.Map<Empresa>(dto);
                 _context.Empresas.Add(empresa);
                 await _context.SaveChangesAsync();
