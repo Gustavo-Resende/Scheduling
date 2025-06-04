@@ -14,10 +14,6 @@ namespace Scheduling.Validators.Servico
             RuleFor(x => x.Preco)
                 .GreaterThan(0).WithMessage("O preço deve ser maior que zero.");
 
-            RuleFor(x => x.Duracao)
-                .NotEmpty().WithMessage("A duração é obrigatória.")
-                .MaximumLength(30).WithMessage("A duração deve ter no máximo 30 caracteres.");
-
             RuleFor(x => x.EmpresaId)
                 .GreaterThan(0).WithMessage("EmpresaId é obrigatório.");
         }

@@ -56,6 +56,32 @@ namespace Scheduling.Data
                 .HasOne(bs => bs.Servico)
                 .WithMany(s => s.BarbeiroServicos)
                 .HasForeignKey(bs => bs.ServicoId);
+
+            // Índice único para CNPJ em Empresa
+            modelBuilder.Entity<Empresa>()
+                .HasIndex(e => e.Cnpj)
+                .IsUnique();
+
+            // Índice único para Email em Empresa
+            modelBuilder.Entity<Empresa>()
+                .HasIndex(e => e.Email)
+                .IsUnique();
+
+            // Índice único para CPF e Email em Cliente
+            modelBuilder.Entity<ClienteModel>()
+                .HasIndex(c => c.Cpf)
+                .IsUnique();
+            modelBuilder.Entity<ClienteModel>()
+                .HasIndex(c => c.Email)
+                .IsUnique();
+
+            // Índice único para CPF e Email em Barbeiro
+            modelBuilder.Entity<Barbeiro>()
+                .HasIndex(b => b.Cpf)
+                .IsUnique();
+            modelBuilder.Entity<Barbeiro>()
+                .HasIndex(b => b.Email)
+                .IsUnique();
         }
 
     }
